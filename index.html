@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prevención Inteligente — INSYDE</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --crimson: #800020;
+    --crimson-light: #a0102e;
+    --crimson-dim: rgba(128,0,32,0.08);
+    --ink: #0d0d0d;
+    --paper: #f5f0e8;
+    --paper-dark: #ede8dc;
+    --warm-gray: #8a8070;
+    --rule: rgba(128,0,32,0.2);
+    --card-bg: #ffffff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 64px 0 48px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+
+  .header-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--crimson);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .header-eyebrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+    max-width: 120px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 7vw, 72px);
+    font-weight: 900;
+    line-height: 0.95;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  h1 span {
+    color: var(--crimson);
+    display: block;
+  }
+
+  .header-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 17px;
+    color: var(--warm-gray);
+    max-width: 480px;
+    line-height: 1.6;
+    margin-top: 20px;
+  }
+
+  /* PROFESSOR STRIP */
+  .professor-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .prof-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .prof-monogram {
+    width: 48px;
+    height: 48px;
+    background: var(--crimson);
+    color: white;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .prof-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .prof-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--warm-gray);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .prof-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .prof-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid var(--rule);
+    color: var(--crimson);
+    border-radius: 2px;
+    transition: all 0.2s;
+    background: transparent;
+  }
+
+  .prof-link:hover {
+    background: var(--crimson);
+    color: white;
+    border-color: var(--crimson);
+  }
+
+  /* SECTION HEADERS */
+  .section {
+    padding: 56px 0 0;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .section-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--crimson);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background: var(--crimson-dim);
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .section-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* THEORY CARDS */
+  .cards-theory {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 2px;
+  }
+
+  .cards-theory-full {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .card-theory {
+    background: var(--card-bg);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-theory::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--crimson);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.25s;
+  }
+
+  .card-theory:hover {
+    background: #fdfaf5;
+  }
+
+  .card-theory:hover::before {
+    transform: scaleY(1);
+  }
+
+  .card-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--crimson);
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .card-desc {
+    font-size: 12.5px;
+    color: var(--warm-gray);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .card-footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px solid var(--paper-dark);
+  }
+
+  .card-filetype {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--warm-gray);
+    text-transform: uppercase;
+  }
+
+  .card-dl-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--crimson);
+    text-decoration: none;
+    background: var(--crimson-dim);
+    padding: 5px 10px;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .card-dl-btn:hover {
+    background: var(--crimson);
+    color: white;
+  }
+
+  /* LAB CARDS */
+  .cards-lab {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .card-lab {
+    background: var(--ink);
+    border-radius: 6px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s;
+  }
+
+  .card-lab:hover {
+    transform: translateY(-2px);
+  }
+
+  .card-lab::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle at top right, rgba(128,0,32,0.3), transparent 70%);
+    pointer-events: none;
+  }
+
+  .card-lab .card-tag {
+    color: rgba(255,255,255,0.4);
+  }
+
+  .card-lab .card-title {
+    color: white;
+    font-size: 15px;
+  }
+
+  .card-lab .card-desc {
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+  }
+
+  .card-lab .card-footer {
+    border-top-color: rgba(255,255,255,0.1);
+  }
+
+  .card-lab .card-filetype {
+    color: rgba(255,255,255,0.3);
+  }
+
+  .card-lab .card-dl-btn {
+    background: rgba(128,0,32,0.3);
+    color: rgba(255,255,255,0.8);
+  }
+
+  .card-lab .card-dl-btn:hover {
+    background: var(--crimson);
+    color: white;
+  }
+
+  /* PODCAST SECTION */
+  .podcast-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .pod-card {
+    background: var(--card-bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 20px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .pod-card:hover {
+    border-color: var(--crimson);
+    box-shadow: 0 4px 20px rgba(128,0,32,0.08);
+  }
+
+  .pod-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--crimson);
+    text-transform: uppercase;
+  }
+
+  .pod-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .pod-icon {
+    margin-top: auto;
+    width: 28px;
+    height: 28px;
+    background: #1db954;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pod-icon svg {
+    width: 14px;
+    height: 14px;
+    fill: white;
+  }
+
+  /* DOWNLOAD BOX */
+  .download-box {
+    margin: 48px 0;
+    background: var(--crimson);
+    border-radius: 6px;
+    padding: 32px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .dl-text h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 6px;
+  }
+
+  .dl-text p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  .dl-steps {
+    display: flex;
+    gap: 20px;
+  }
+
+  .dl-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+  }
+
+  .dl-step-num {
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: white;
+  }
+
+  .dl-step-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    max-width: 70px;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--rule);
+    padding: 32px 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--warm-gray);
+    max-width: 500px;
+    line-height: 1.6;
+  }
+
+  .footer-badge {
+    background: var(--crimson);
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 2px;
+  }
+
+  /* ICON SVG inline */
+  .icon-dl {
+    width: 10px;
+    height: 10px;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  header, .professor-strip, .section {
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section:nth-of-type(2) { animation-delay: 0.1s; }
+  .section:nth-of-type(3) { animation-delay: 0.2s; }
+  .section:nth-of-type(4) { animation-delay: 0.3s; }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .cards-theory, .cards-theory-full, .cards-lab, .podcast-grid { grid-template-columns: 1fr; }
+    .professor-strip { flex-direction: column; align-items: flex-start; }
+    .dl-steps { flex-wrap: wrap; justify-content: center; }
+    .download-box { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-eyebrow">INSYDE &nbsp;·&nbsp; Curso 2026</div>
+    <h1>Prevención<span>Inteligente</span></h1>
+    <p class="header-sub">Análisis de Datos para la Prevención y Reducción del Delito. Práctica con R: de la estructura del dato a la modelación predictiva.</p>
+  </header>
+
+  <!-- PROFESSOR -->
+  <div class="professor-strip">
+    <div class="prof-info">
+      <div class="prof-monogram">WJ</div>
+      <div>
+        <div class="prof-name">Williams Gilberto Jiménez García, PhD.</div>
+        <div class="prof-title">Criminología · Análisis Espacial · Políticas de Seguridad</div>
+      </div>
+    </div>
+    <div class="prof-links">
+      <a class="prof-link" href="mailto:wgjimenezg@gmail.com">Email</a>
+      <a class="prof-link" href="https://orcid.org/0000-0002-2227-8308" target="_blank">ORCID</a>
+      <a class="prof-link" href="https://scholar.google.com/citations?user=YL6DVeoAAAAJ&hl=es" target="_blank">Scholar</a>
+      <a class="prof-link" href="https://www.researchgate.net/profile/Williams-Gilberto-Jimenez-Garcia-2" target="_blank">ResearchGate</a>
+    </div>
+  </div>
+
+  <!-- THEORY CARDS -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-number">01 — Teoría</span>
+      <span class="section-title">Material de Clase</span>
+      <span class="section-rule"></span>
+    </div>
+
+    <div class="cards-theory">
+      <a class="card-theory" href="Clase_000.pdf">
+        <span class="card-tag">Clase 000</span>
+        <div class="card-title">Pensar con Datos en la Seguridad</div>
+        <div class="card-desc">Conceptos fundamentales, análisis de la cifra oculta y sesgos en la construcción del dato criminal.</div>
+        <div class="card-footer">
+          <span class="card-filetype">PDF — Teoría</span>
+          <a class="card-dl-btn" href="Clase_000.pdf" download>
+            <svg class="icon-dl" viewBox="0 0 16 16" fill="currentColor"><path d="M8 12l-4-4h2.5V3h3v5H12L8 12zm-5 2h10v-1.5H3V14z"/></svg>
+            Descargar
+          </a>
+        </div>
+      </a>
+
+      <a class="card-theory" href="Clase_000B.pdf">
+        <span class="card-tag">Clase 000B</span>
+        <div class="card-title">De los Registros a las Decisiones</div>
+        <div class="card-desc">Transformación de datos crudos en inteligencia accionable. Análisis estructural e interoperabilidad.</div>
+        <div class="card-footer">
+          <span class="card-filetype">PDF — Teoría</span>
+          <a class="card-dl-btn" href="Clase_000B.pdf" download>
+            <svg class="icon-dl" viewBox="0 0 16 16" fill="currentColor"><path d="M8 12l-4-4h2.5V3h3v5H12L8 12zm-5 2h10v-1.5H3V14z"/></svg>
+            Descargar
+          </a>
+        </div>
+      </a>
+    </div>
+
+    <div style="height:2px"></div>
+
+    <div class="cards-theory-full">
+      <a class="card-theory" href="Clase_001.pdf">
+        <span class="card-tag">Clase 001</span>
+        <div class="card-title">Análisis de Datos — Workflow Completo</div>
+        <div class="card-desc">Limpieza, estructuración y exploración visual de bases de datos de seguridad. Paso a paso desde el objeto analítico.</div>
+        <div class="card-footer">
+          <span class="card-filetype">PDF — Práctica</span>
+          <a class="card-dl-btn" href="Clase_001.pdf" download>
+            <svg class="icon-dl" viewBox="0 0 16 16" fill="currentColor"><path d="M8 12l-4-4h2.5V3h3v5H12L8 12zm-5 2h10v-1.5H3V14z"/></svg>
+            Descargar
+          </a>
+        </div>
+      </a>
+
+      <a class="card-theory" href="Clase_002.pdf">
+        <span class="card-tag">Clase 002</span>
+        <div class="card-title">Inferencia y Regresión Logística</div>
+        <div class="card-desc">Chi-cuadrado, Odds Ratios y comunicación efectiva de hallazgos para decisores de política pública.</div>
+        <div class="card-footer">
+          <span class="card-filetype">PDF — Práctica</span>
+          <a class="card-dl-btn" href="Clase_002.pdf" download>
+            <svg class="icon-dl" viewBox="0 0 16 16" fill="currentColor"><path d="M8 12l-4-4h2.5V3h3v5H12L8 12zm-5 2h10v-1.5H3V14z"/></svg>
+            Descargar
+          </a>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- LAB CARDS -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-number">02 — Laboratorio</span>
+      <span class="section-title">Datos y Código</span>
+      <span class="section-rule"></span>
+    </div>
+
+    <div class="cards-lab">
+      <a class="card-lab" href="BD_springfield.xlsx" download>
+        <span class="card-tag">Dataset Principal</span>
+        <div class="card-title">BD_springfield.xlsx</div>
+        <div class="card-desc">Registros de incidentes con variables temporales, espaciales y modus operandi. Base para todas las prácticas del curso.</div>
+        <div class="card-footer">
+          <span class="card-filetype">Excel · .xlsx</span>
+          <span class="card-dl-btn">
+            <svg class="icon-dl" viewBox="0 0 16 16" fill="currentColor"><path d="M8 12l-4-4h2.5V3h3v5H12L8 12zm-5 2h10v-1.5H3V14z"/></svg>
+            Descargar
+          </span>
+        </div>
+      </a>
+
+      <a class="card-lab" href="Clase001.R" download>
+        <span class="card-tag">Script R</span>
+        <div class="card-title">Clase001.R</div>
+        <div class="card-desc">Workflow completo: importación, limpieza con tidyverse, análisis exploratorio y modelos de regresión logística.</div>
+        <div class="card-footer">
+          <span class="card-filetype">R Script · .R</span>
+          <span class="card-dl-btn">
+            <svg class="icon-dl" viewBox="0 0 16 16" fill="currentColor"><path d="M8 12l-4-4h2.5V3h3v5H12L8 12zm-5 2h10v-1.5H3V14z"/></svg>
+            Descargar
+          </span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- PODCAST SECTION -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-number">03 — Audio</span>
+      <span class="section-title">Podcast del Curso</span>
+      <span class="section-rule"></span>
+    </div>
+
+    <div class="podcast-grid">
+      <a class="pod-card" href="https://open.spotify.com/episode/7GSLyQHB2F5SAxJ9zeF8tX?si=3eef3a532c9e4238" target="_blank">
+        <div class="pod-number">Episodio 01</div>
+        <div class="pod-label">Intro al Análisis Criminal</div>
+        <div class="pod-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        </div>
+      </a>
+
+      <a class="pod-card" href="https://open.spotify.com/episode/6w0ZrxezR2jxgOAIqwp92z?si=62be8238e1c548aa" target="_blank">
+        <div class="pod-number">Episodio 02</div>
+        <div class="pod-label">Datos, Sesgos y Cifra Oculta</div>
+        <div class="pod-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        </div>
+      </a>
+
+      <a class="pod-card" href="https://open.spotify.com/episode/0eJdmXYiNoF97q3WVUu31W?si=ec8f62845a9342ec" target="_blank">
+        <div class="pod-number">Episodio 03</div>
+        <div class="pod-label">Inferencia y Decisión</div>
+        <div class="pod-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- DOWNLOAD BOX -->
+  <div class="download-box">
+    <div class="dl-text">
+      <h3>Descargar todo el material</h3>
+      <p>Descarga el repositorio completo como ZIP y trabaja de forma local con todos los archivos en una misma carpeta.</p>
+    </div>
+    <div class="dl-steps">
+      <div class="dl-step">
+        <div class="dl-step-num">1</div>
+        <div class="dl-step-text">Clic en Code</div>
+      </div>
+      <div class="dl-step">
+        <div class="dl-step-num">2</div>
+        <div class="dl-step-text">Download ZIP</div>
+      </div>
+      <div class="dl-step">
+        <div class="dl-step-num">3</div>
+        <div class="dl-step-text">Descomprimir</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-quote">
+      "Comprender la dinámica criminal es el único camino hacia intervenciones que salven vidas y pacifiquen territorios."
+    </div>
+    <div class="footer-badge">INSYDE · 2026</div>
+  </footer>
+
+</div>
+</body>
+</html>
